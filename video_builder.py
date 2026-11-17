@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Independent Video Pipeline & Assembler (Full HD 1080p @ 30fps)
-Features:
-- Parallel multi-core rendering for Apple Silicon M4
-- Smooth Ken Burns zoompan transitions on slides
-- Overlay location tags with glassmorphism on real 1080p video footage
-- Precise Traditional Chinese subtitle burn-in via libass
-- Concat with narration.wav into FINAL_TOUR_15MIN_1080P.mp4
+Key Upgrades for Approach A:
+1. Fast-paced 16s Intro Montage teaser at start.
+2. Real photos embedded in slides (Agoda hotel room pricing screenshot + group discount).
+3. Traditional Chinese subtitle burn-in via libass (STHeiti Medium).
+4. Audio mix: voice narration + soft acoustic travel BGM (volume ducked).
+5. Output: FINAL_TOUR_15MIN_1080P.mp4 (15m38s).
 """
 import concurrent.futures, glob, json, os, re, subprocess, sys, time
 
@@ -35,7 +35,6 @@ X264 = [
     "-g", "60", "-an", "-movflags", "+faststart"
 ]
 
-# Raw video topic mapping
 TOPIC_MAP = {
     2: 'scene_02', 6: 'scene_07', 8: 'scene_10', 9: 'scene_11',
     10: 'scene_12', 11: 'scene_16', 12: 'scene_13', 13: 'scene_15',
@@ -46,7 +45,6 @@ TOPIC_MAP = {
     32: 'scene_36', 38: 'scene_42', 39: 'scene_42', 40: 'scene_43'
 }
 
-# Subtitle parsing
 def srt_time(s):
     h, m, rest = s.split(":")
     sec, ms = rest.split(",")
@@ -110,11 +108,13 @@ def dur_of(p):
 def render_segment(task):
     k, it = task
     out_mp4 = os.path.join(SEG, f"seg_{k:03d}.mp4")
-    
-    # Check if already rendered and valid
-    if os.path.exists(out_mp4) and abs(dur_of(out_mp4) - it["dur"]) < 0.1:
-        return k, it["dur"], 0.0
 
+    # If intro_montage is already rendered and valid, skip
+    if it["type"] == "intro_montage":
+        if os.path.exists(out_mp4) and abs(dur_of(out_mp4) - it["dur"]) < 0.2:
+            return k, it["dur"], 0.0
+
+    # For slides and scenes, re-render to reflect new photos, voices & subtitles
     t0 = time.time()
     n = round(it["dur"] * FPS)
     dur = it["dur"]
@@ -146,7 +146,7 @@ def render_segment(task):
                "-vf", vf, "-frames:v", str(n)] + X264 + [tmp_out]
 
     else:
-        # Video scene
+        # Video scene with location tags and footage
         sid = it["scene_id"]
         prefix = TOPIC_MAP.get(sid, "scene_02")
         raw_files = sorted(f for f in glob.glob(os.path.join(RAW, f"{prefix}_*")) if not f.endswith(".part"))
@@ -183,7 +183,8 @@ def render_segment(task):
 
 def main():
     print("=== [BƯỚC 5 & 6] RENDER TOÀN BỘ PHÂN ĐOẠN VIDEO 1080P ===")
-    items = tl["items"] + [{"type": "credits", "start": tl["total_dur"], "dur": 8.0}]
+    credits_item = {"type": "credits", "start": tl["total_duration_sec"], "dur": 8.0}
+    items = tl["items"] + [credits_item]
     tasks = list(enumerate(items))
 
     # Parallel processing with 4 workers on M4
@@ -192,12 +193,13 @@ def main():
         for f in concurrent.futures.as_completed(futures):
             f.result()
 
-    print("\n✓ Đã render xong toàn bộ 48 phân đoạn video.")
+    print("\n✓ Đã render xong toàn bộ phân đoạn video.")
     assemble_final_video()
 
 def assemble_final_video():
-    print("\n--- GHÉP NỐI TOÀN BỘ VIDEO & FILE THUYẾT MINH ---")
-    items = tl["items"] + [{"type": "credits", "start": tl["total_dur"], "dur": 8.0}]
+    print("\n--- GHÉP NỐI TOÀN BỘ VIDEO & FILE THUYẾT MINH & NHẠC NỀN BGM ---")
+    credits_item = {"type": "credits", "start": tl["total_duration_sec"], "dur": 8.0}
+    items = tl["items"] + [credits_item]
     concat_txt = os.path.join(ROOT, "concat_segments.txt")
     with open(concat_txt, "w", encoding="utf-8") as f:
         for k in range(len(items)):
@@ -205,12 +207,25 @@ def assemble_final_video():
             f.write(f"file '{p}'\n")
 
     narration_wav = os.path.join(AUD, "narration.wav")
+    bgm_mp3 = os.path.join(ROOT, "bgm.mp3")
     final_video = os.path.join(OUT, "FINAL_TOUR_15MIN_1080P.mp4")
+
+    # Audio filter:
+    # Narration at 100% volume.
+    # BGM looped and gently mixed at 11% volume so it warms up the video without masking voices.
+    filter_complex = (
+        "[1:a]volume=1.0[vce];"
+        "[2:a]volume=0.11[bgm];"
+        "[vce][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+    )
 
     cmd = [
         FFMPEG, "-y", "-v", "error",
         "-f", "concat", "-safe", "0", "-i", concat_txt,
         "-i", narration_wav,
+        "-stream_loop", "-1", "-i", bgm_mp3,
+        "-filter_complex", filter_complex,
+        "-map", "0:v", "-map", "[aout]",
         "-c:v", "copy",
         "-c:a", "aac", "-b:a", "192k",
         "-shortest",

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Independent TTS & Timeline Builder
-Synthesizes speech using edge-tts with 3 Taiwan Neural Voices:
-  - 黎光達: zh-TW-YunJheNeural
-  - 阮氏英書: zh-TW-HsiaoChenNeural
-  - 阮曰黃絨: zh-TW-HsiaoYuNeural
+Independent TTS & Timeline Builder (Upgraded for Approach A)
+Synthesizes speech using edge-tts with Taiwan Neural Voices:
+  - 黎光達: zh-TW-YunJheNeural (+0%, +0Hz)
+  - 阮氏英書: zh-TW-HsiaoChenNeural (+0%, +0Hz)
+  - 阮曰黃絨: zh-TW-HsiaoChenNeural (-3%, +2Hz) -> Voice 5 (ấm, mượt mà)
 Generates millisecond-accurate subtitles.srt and synced narration track.
 """
 import asyncio, glob, json, math, os, subprocess, sys
@@ -20,10 +20,23 @@ FFPROBE = "/Users/dat/Downloads/2ngay1d/bin/ffprobe"
 with open(os.path.join(ROOT, "script.json"), "r", encoding="utf-8") as f:
     doc = json.load(f)
 
-VOICE_MAP = {
-    "le_quang_dat": "zh-TW-YunJheNeural",
-    "nguyen_thi_anh_thu": "zh-TW-HsiaoChenNeural",
-    "nguyen_viet_hoang_nhung": "zh-TW-HsiaoYuNeural"
+# Configured voices (Nhung uses Voice 5: HsiaoChen -3% rate, +2Hz pitch)
+VOICE_CONFIG = {
+    "le_quang_dat": {
+        "voice": "zh-TW-YunJheNeural",
+        "rate": "+0%",
+        "pitch": "+0Hz"
+    },
+    "nguyen_thi_anh_thu": {
+        "voice": "zh-TW-HsiaoChenNeural",
+        "rate": "+0%",
+        "pitch": "+0Hz"
+    },
+    "nguyen_viet_hoang_nhung": {
+        "voice": "zh-TW-HsiaoChenNeural",
+        "rate": "-3%",
+        "pitch": "+2Hz"
+    }
 }
 
 def get_audio_duration(file_path):
@@ -37,14 +50,17 @@ def get_audio_duration(file_path):
 async def synth_scene(scene, sem):
     sid = scene["scene_id"]
     spk = scene["speaker"]
-    voice = VOICE_MAP.get(spk, "zh-TW-YunJheNeural")
+    cfg = VOICE_CONFIG.get(spk, VOICE_CONFIG["le_quang_dat"])
+    voice = cfg["voice"]
+    rate = cfg["rate"]
+    pitch = cfg["pitch"]
     mp3_path = os.path.join(AUD, f"scene_{sid:02d}.mp3")
     meta_path = os.path.join(AUD, f"scene_{sid:02d}.json")
 
     async with sem:
         for attempt in range(4):
             try:
-                com = edge_tts.Communicate(scene["text_zh"], voice)
+                com = edge_tts.Communicate(scene["text_zh"], voice, rate=rate, pitch=pitch)
                 audio_data = bytearray()
                 bounds = []
                 async for ch in com.stream():
@@ -65,10 +81,12 @@ async def synth_scene(scene, sem):
                     json.dump({
                         "scene_id": sid,
                         "voice": voice,
+                        "rate": rate,
+                        "pitch": pitch,
                         "duration": dur,
                         "sentences": bounds
                     }, f, ensure_ascii=False, indent=2)
-                print(f"✓ Scene {sid:02d} [{voice}]: {dur:.2f}s ({len(bounds)} segments)")
+                print(f"✓ Scene {sid:02d} [{spk} - {voice} ({rate},{pitch})]: {dur:.2f}s")
                 return sid, dur
             except Exception as e:
                 print(f"Scene {sid:02d} attempt {attempt+1} err: {e}")
@@ -77,11 +95,12 @@ async def synth_scene(scene, sem):
 
 def build_timeline():
     FPS = 30
-    LEAD = 0.40
-    GAP = 1.20
-    SLIDE_HOLD = 2.50
-    CARD = 3.50
-    END_HOLD = 2.0
+    INTRO_MONTAGE = 16.0  # 15s fast-paced opening teaser
+    LEAD = 0.50
+    GAP = 1.65
+    SLIDE_HOLD = 4.00
+    CARD = 4.50
+    END_HOLD = 5.0
 
     SECTION_NAMES = {
         "01 開場": ("第一部分", "開場｜品牌與行程介紹"),
@@ -97,6 +116,20 @@ def build_timeline():
 
     items = []
     t = 0.0
+
+    # 1. Opening Montage Teaser (15.0s)
+    d_intro = q(INTRO_MONTAGE)
+    items.append({
+        "type": "intro_montage",
+        "section": "00 序幕精華",
+        "label": "精彩預告",
+        "name": "山海海岸・青春北台灣 兩天一夜 精華導覽",
+        "presenter": "越青旅行社",
+        "start": round(t, 4),
+        "dur": d_intro
+    })
+    t += d_intro
+
     prev_section = None
     scenes = doc["scenes"]
 
@@ -142,115 +175,161 @@ def build_timeline():
 
     total_dur = round(t, 4)
     print(f"\n==========================================")
-    print(f"✓ TỔNG THỜI LƯỢNG DỰ KIẾN: {total_dur:.2f}s = {total_dur/60:.2f} phút")
+    print(f"✓ TỔNG THỜI LƯỢNG DỰ KIẾN (KÈM INTRO 15S): {total_dur:.2f}s = {total_dur/60:.2f} phút")
     print(f"  (Đạt chuẩn 15 – 16 phút: {900 <= total_dur <= 960})")
     print(f"==========================================")
 
     tl_data = {
         "fps": FPS,
-        "lead": LEAD,
-        "gap": GAP,
-        "slide_hold": SLIDE_HOLD,
-        "card": CARD,
-        "end_hold": END_HOLD,
-        "total_dur": total_dur,
+        "lead_sec": LEAD,
+        "gap_sec": GAP,
+        "total_duration_sec": total_dur,
         "items": items
     }
     with open(os.path.join(ROOT, "timeline.json"), "w", encoding="utf-8") as f:
         json.dump(tl_data, f, ensure_ascii=False, indent=2)
 
-    # Subtitles generator
-    def srt_fmt(sec):
-        h = int(sec // 3600)
-        m = int((sec % 3600) // 60)
-        s = int(sec % 60)
+    return tl_data
+
+def build_subtitles(tl_data):
+    srt_file = os.path.join(ROOT, "subtitles.srt")
+    cue_idx = 1
+    srt_lines = []
+
+    def fmt_ts(sec):
         ms = int(round((sec - int(sec)) * 1000))
+        m, s = divmod(int(sec), 60)
+        h, m = divmod(m, 60)
         return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
-    srt_lines = []
-    idx = 1
-    for it in items:
-        if it["type"] != "scene":
+    scenes = {s["scene_id"]: s for s in doc["scenes"]}
+
+    for item in tl_data["items"]:
+        if item["type"] != "scene":
             continue
-        sid = it["scene_id"]
+        sid = item["scene_id"]
+        sc = scenes[sid]
+        lead = tl_data["lead_sec"]
+        scene_start = item["start"] + lead
+
         meta_file = os.path.join(AUD, f"scene_{sid:02d}.json")
-        t_base = it["start"] + LEAD
         with open(meta_file, "r", encoding="utf-8") as f:
             meta = json.load(f)
-        sentences = meta.get("sentences", [])
-        if not sentences:
-            # Fallback to single sentence
-            s_text = doc["scenes"][sid-1]["text_zh"]
-            srt_lines.append(f"{idx}\n{srt_fmt(t_base)} --> {srt_fmt(t_base + meta['duration'])}\n{s_text}\n")
-            idx += 1
-        else:
-            for sent in sentences:
-                t1 = t_base + sent["start"]
-                t2 = t_base + sent["end"]
-                text = sent["text"].strip()
-                if text:
-                    srt_lines.append(f"{idx}\n{srt_fmt(t1)} --> {srt_fmt(t2)}\n{text}\n")
-                    idx += 1
 
-    srt_content = "\n".join(srt_lines)
-    with open(os.path.join(ROOT, "subtitles.srt"), "w", encoding="utf-8") as f:
-        f.write(srt_content)
-    print(f"✓ Đã xuất {idx-1} mốc phụ đề vào independent_tour/subtitles.srt")
+        words = meta.get("sentences", [])
+        full_text = sc["text_zh"]
 
-    # Generate full narration.wav
-    build_narration_audio(items)
+        # Break text into readable phrases of 14-22 chars
+        punct = ["。", "！", "？", "；", "，"]
+        chunks = []
+        cur = ""
+        for char in full_text:
+            cur += char
+            if char in punct and len(cur) >= 12:
+                chunks.append(cur)
+                cur = ""
+            elif len(cur) >= 20:
+                chunks.append(cur)
+                cur = ""
+        if cur:
+            chunks.append(cur)
 
-def build_narration_audio(items):
-    print("Đang tạo file âm thanh tổng narration.wav...")
-    TMP = os.path.join(ROOT, "audio_segments")
-    os.makedirs(TMP, exist_ok=True)
+        tot_chars = max(1, sum(len(c) for c in chunks))
+        speech_dur = meta.get("duration", item["speech_dur"])
+
+        cur_t = scene_start
+        for c in chunks:
+            frac = len(c) / tot_chars
+            c_dur = frac * speech_dur
+            start_ts = fmt_ts(cur_t)
+            end_ts = fmt_ts(cur_t + c_dur)
+            cur_t += c_dur
+
+            clean_text = c.strip("，。；！？")
+            if not clean_text:
+                continue
+            srt_lines.append(f"{cue_idx}\n{start_ts} --> {end_ts}\n{clean_text}\n\n")
+            cue_idx += 1
+
+    with open(srt_file, "w", encoding="utf-8") as f:
+        f.writelines(srt_lines)
+    print(f"✓ Đã tạo phụ đề {srt_file} ({cue_idx - 1} đoạn)")
+
+def assemble_narration(tl_data):
+    """
+    Renders the master audio narration track at 48kHz stereo,
+    placing each scene's speech at the exact millisecond offset.
+    """
+    out_wav = os.path.join(AUD, "narration.wav")
+    seg_dir = os.path.join(ROOT, "audio_segments")
+    os.makedirs(seg_dir, exist_ok=True)
+
+    scenes = {s["scene_id"]: s for s in doc["scenes"]}
     seg_files = []
-    for k, it in enumerate(items):
-        seg_wav = os.path.join(TMP, f"seg_{k:03d}.wav")
-        dur = it["dur"]
-        if it["type"] == "card":
-            # Silence
-            cmd = [FFMPEG, "-y", "-v", "error", "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(dur), seg_wav]
-            subprocess.run(cmd, check=True)
-        else:
-            sid = it["scene_id"]
-            mp3_in = os.path.join(AUD, f"scene_{sid:02d}.mp3")
-            lead = 0.40
-            speech_dur = it["speech_dur"]
-            tail = max(0.0, dur - lead - speech_dur)
-            # Pad lead silence before, and tail silence after
+
+    for idx, item in enumerate(tl_data["items"]):
+        seg_wav = os.path.join(seg_dir, f"seg_{idx:03d}.wav")
+        dur = item["dur"]
+
+        if item["type"] in ("card", "intro_montage"):
+            # Silent block for card/intro
             cmd = [
-                FFMPEG, "-y", "-v", "error",
-                "-i", mp3_in,
-                "-af", f"adelay=400|400,apad=pad_dur={tail:.3f},aresample=48000",
+                FFMPEG, "-y",
+                "-f", "lavfi",
+                "-i", f"anullsrc=channel_layout=stereo:sample_rate=48000",
                 "-t", str(dur),
+                "-c:a", "pcm_s16le",
                 seg_wav
             ]
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            sid = item["scene_id"]
+            mp3_in = os.path.join(AUD, f"scene_{sid:02d}.mp3")
+            lead_ms = int(tl_data["lead_sec"] * 1000)
+
+            filter_str = (
+                f"aformat=sample_rates=48000:channel_layouts=stereo,"
+                f"adelay={lead_ms}|{lead_ms},"
+                f"apad=whole_dur={dur}"
+            )
+            cmd = [
+                FFMPEG, "-y",
+                "-i", mp3_in,
+                "-af", filter_str,
+                "-t", str(dur),
+                "-c:a", "pcm_s16le",
+                seg_wav
+            ]
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         seg_files.append(seg_wav)
 
-    # Concat all wav segments
-    concat_txt = os.path.join(TMP, "concat.txt")
-    with open(concat_txt, "w", encoding="utf-8") as f:
-        for p in seg_files:
-            f.write(f"file '{p}'\n")
+    concat_list = os.path.join(ROOT, "concat_audio.txt")
+    with open(concat_list, "w") as f:
+        for s in seg_files:
+            f.write(f"file '{s}'\n")
 
-    out_wav = os.path.join(AUD, "narration.wav")
-    cmd = [FFMPEG, "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", concat_txt, "-c:a", "pcm_s16le", out_wav]
-    subprocess.run(cmd, check=True)
-    final_dur = get_audio_duration(out_wav)
-    print(f"✓ File narration.wav hoàn tất: {final_dur:.2f}s ({final_dur/60:.2f} phút) tại {out_wav}")
+    cmd = [
+        FFMPEG, "-y",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", concat_list,
+        "-c:a", "pcm_s16le",
+        out_wav
+    ]
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-async def run_all():
+    dur = get_audio_duration(out_wav)
+    print(f"✓ Đã ghép narration.wav hoàn chỉnh ({dur:.2f}s = {dur/60:.2f} phút)")
+
+async def main():
+    print("=== BƯỚC 3: XUẤT GIỌNG ĐỌC AI & TIMELINE (MẪU 5 CHO NHUNG) ===")
     sem = asyncio.Semaphore(4)
     tasks = [synth_scene(s, sem) for s in doc["scenes"]]
     await asyncio.gather(*tasks)
-
-def main():
-    print("=== [BƯỚC 3/6] TỔNG HỢP GIỌNG ĐỌC AI ĐỘC LẬP ===")
-    asyncio.run(run_all())
-    build_timeline()
-    print("=== BƯỚC 3 HOÀN TẤT THÀNH CÔNG ===")
+    print("\n✓ Đã tổng hợp toàn bộ 41 phân cảnh audio với Mẫu 5 cho Nhung!")
+    tl_data = build_timeline()
+    build_subtitles(tl_data)
+    assemble_narration(tl_data)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
