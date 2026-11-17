@@ -1,0 +1,20 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:07.17,Box,,0,0,0,,定價方面，我們將售價訂為每人新台幣三千六百元。
+Dialogue: 1,0:00:00.50,0:00:07.17,Txt,,0,0,0,,定價方面，我們將售價訂為每人新台幣三千六百元。
+Dialogue: 0,0:00:07.12,0:00:19.54,Box,,0,0,0,,售價扣除總成本三千零三元後，每位旅客為旅行社帶來五百九十七元淨利潤，利潤率約百分之十六點六。
+Dialogue: 1,0:00:07.12,0:00:19.54,Txt,,0,0,0,,售價扣除總成本三千零三元後，每位旅客為旅行社帶來五百九十七元淨利潤，利潤率約百分之十六點六。
+Dialogue: 0,0:00:19.54,0:00:28.74,Box,,0,0,0,,以每團十六人計，每團利潤達九千五百五十二元，兼顧親民與永續營運。
+Dialogue: 1,0:00:19.54,0:00:28.74,Txt,,0,0,0,,以每團十六人計，每團利潤達九千五百五十二元，兼顧親民與永續營運。

@@ -1,0 +1,16 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:16.84,Box,,0,0,0,,經過深入市調，越南青年出遊最重視三大要素：第一是好玩，要親自放天燈與逛夜市；第二是好拍，每個景點都要能拍出社群吸睛美照；第三是價格合理，所有花費公開透明，絕無強迫消費或隱形購物站。
+Dialogue: 1,0:00:00.50,0:00:16.84,Txt,,0,0,0,,經過深入市調，越南青年出遊最重視三大要素：第一是好玩，要親自放天燈與逛夜市；第二是好拍，每個景點都要能拍出社群吸睛美照；第三是價格合理，所有花費公開透明，絕無強迫消費或隱形購物站。

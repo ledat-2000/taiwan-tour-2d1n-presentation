@@ -1,0 +1,20 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:05.43,Box,,0,0,0,,十點半至十一點半，在十分老街施放祈福天燈。
+Dialogue: 1,0:00:00.50,0:00:05.43,Txt,,0,0,0,,十點半至十一點半，在十分老街施放祈福天燈。
+Dialogue: 0,0:00:05.38,0:00:10.16,Box,,0,0,0,,十分老街最特別的是火車就從店家門前開過。
+Dialogue: 1,0:00:05.38,0:00:10.16,Txt,,0,0,0,,十分老街最特別的是火車就從店家門前開過。
+Dialogue: 0,0:00:10.16,0:00:20.74,Box,,0,0,0,,我們安排兩人合放一盞四色天燈，一盞兩百五十元，每人一百二十五元，親筆寫下祝福，看著天燈升空無比感動。
+Dialogue: 1,0:00:10.16,0:00:20.74,Txt,,0,0,0,,我們安排兩人合放一盞四色天燈，一盞兩百五十元，每人一百二十五元，親筆寫下祝福，看著天燈升空無比感動。

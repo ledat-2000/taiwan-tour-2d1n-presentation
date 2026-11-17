@@ -1,0 +1,23 @@
+# Big media binaries & raw cuts (too large for git commit history)
+audio/
+audio_segments/
+segments/
+output/
+concat_segments.txt
+*.mp4
+*.wav
+*.mp3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# macOS system files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes

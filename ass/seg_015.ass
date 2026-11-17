@@ -1,0 +1,20 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:05.50,Box,,0,0,0,,放完天燈後，步行二十分鐘前往十分瀑布公園。
+Dialogue: 1,0:00:00.50,0:00:05.50,Txt,,0,0,0,,放完天燈後，步行二十分鐘前往十分瀑布公園。
+Dialogue: 0,0:00:05.45,0:00:14.04,Box,,0,0,0,,十分瀑布寬四十公尺、高二十公尺，是台灣最大的簾幕型瀑布，有台灣尼加拉瀑布之稱。
+Dialogue: 1,0:00:05.45,0:00:14.04,Txt,,0,0,0,,十分瀑布寬四十公尺、高二十公尺，是台灣最大的簾幕型瀑布，有台灣尼加拉瀑布之稱。
+Dialogue: 0,0:00:14.04,0:00:21.25,Box,,0,0,0,,新北市政府目前免門票開放，陽光下彩虹映照瀑布，是拍照打卡首選。
+Dialogue: 1,0:00:14.04,0:00:21.25,Txt,,0,0,0,,新北市政府目前免門票開放，陽光下彩虹映照瀑布，是拍照打卡首選。

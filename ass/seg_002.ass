@@ -1,0 +1,18 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:05.39,Box,,0,0,0,,越青旅行社是由在台灣求學的越南留學生共同成立。
+Dialogue: 1,0:00:00.50,0:00:05.39,Txt,,0,0,0,,越青旅行社是由在台灣求學的越南留學生共同成立。
+Dialogue: 0,0:00:05.34,0:00:18.70,Box,,0,0,0,,我們親身體會過初次來台時在語言與大眾交通上的迷惘，因此最了解越南旅客的核心需求：資訊透明、拒絕隱藏收費，並提供全程雙語陪伴，讓每位朋友安心暢遊台灣。
+Dialogue: 1,0:00:05.34,0:00:18.70,Txt,,0,0,0,,我們親身體會過初次來台時在語言與大眾交通上的迷惘，因此最了解越南旅客的核心需求：資訊透明、拒絕隱藏收費，並提供全程雙語陪伴，讓每位朋友安心暢遊台灣。

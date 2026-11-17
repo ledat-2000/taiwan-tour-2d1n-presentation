@@ -1,0 +1,16 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Box,STHeiti Medium,54,&HFF000000,&HFF000000,&H8C000000,&H8C000000,1,0,0,0,100,100,1,0,3,14,0,2,80,80,68,1
+Style: Txt,STHeiti Medium,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,1,0,0,0,100,100,1,0,1,3.0,0,2,80,80,68,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:16.96,Box,,0,0,0,,第三，價格公道透明：兩天一夜含交通、住宿、門票天燈與六餐美食只要三千六百元；第四，安全安心：雙語領隊全程陪伴，每天只安排精選景點不趕路，讓旅客玩得盡興、家人百分之百放心。
+Dialogue: 1,0:00:00.50,0:00:16.96,Txt,,0,0,0,,第三，價格公道透明：兩天一夜含交通、住宿、門票天燈與六餐美食只要三千六百元；第四，安全安心：雙語領隊全程陪伴，每天只安排精選景點不趕路，讓旅客玩得盡興、家人百分之百放心。
